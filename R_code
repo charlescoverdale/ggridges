@@ -1,0 +1,65 @@
+---
+Title: "Weather in Melbourne"
+Author: Charles Coverdale
+Date: 18 May 2020
+---
+
+#packages
+install.packages("ggridges")
+install.packages("viridis")
+install.packages("hrbrthemes")
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("stringr")
+install.packages("reshape")
+install.packages("tidyr")
+
+#library
+library(ggridges)
+library(ggplot2)
+library(viridis)
+library(readxl)
+library(hrbrthemes)
+library(dplyr)
+library(stringr)
+library(reshape)
+library(tidyr)
+
+#Download BOM cliamte data from here: http://www.bom.gov.au/climate/data/
+
+#import daily max temp data from the BOM
+MEL_temp_daily <- read.csv("C:/Users/Charles F Coverdale/Desktop//MEL_temp_2019.csv")
+
+head(MEL_temp_daily, n=20)
+
+#rename the key variables to something less janky than what the BOM gives them
+names(MEL_temp_daily)[4] <-"Month"
+names(MEL_temp_daily)[6] <-"Temp"
+
+head(MEL_temp_daily, n=20)
+
+#handy little inbuilt function to change the month numbers to month appreviations (e.g. 1 becomes 'Jan').
+MEL_temp_daily<-transform(MEL_temp_daily,Month=month.abb[Month])
+
+head(TH_temp_daily, n=20)
+
+#The month variables needs to be a factor for the plot to work
+MEL_temp_daily$Month<-factor(MEL_temp_daily$Month,levels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+head(TH_temp_daily, n=20)
+
+# Plot
+MEL_temp_ridge_chart <- ggplot(MEL_temp_daily, aes(x = Temp, y=Month, fill = stat(x))) +
+                       geom_density_ridges_gradient(scale =2, size=0.3,rel_min_height = 0.01, gradient_lwd = 1.) +
+                       scale_y_discrete(limits = unique(rev(MEL_temp_daily$Month)))+
+                       scale_fill_viridis_c(name = "°C", option = "C") +
+                       labs(title = 'Coolangatta temperature profile',
+                        subtitle = 'Daily maximum temperature recorded in Melbourne in 2019',
+                       caption = "Data: Bureau of Meteorology 2020") +
+                        xlab(" ")+
+                        ylab(" ")+
+                        theme_ridges(font_size = 13, grid = TRUE) 
+
+TH_temp_ridge_chart
+  
+ggsave("C:/Users/Charles F Coverdale/Desktop/go_bag/MEL_temp_2019.pdf",units="cm",dpi=200, device="pdf")
